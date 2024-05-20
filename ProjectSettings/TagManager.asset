@@ -16,6 +16,10 @@ TagManager:
   - BtnUP
   - DeathFloor
   - BtnR
+  - Box
+  - FixedCamera
+  - noChangeGravityWall
+  - Key
   layers:
   - Default
   - TransparentFX
