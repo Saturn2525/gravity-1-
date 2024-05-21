@@ -4,92 +4,60 @@ using UnityEngine;
 
 public class GravityScript : MonoBehaviour
 {
+    [SerializeField] private float gravityScale;
+    [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private float rayLength = 1;
 
-    private Vector3 localGravityL = new Vector3(-20f, 0, 0);
-    private Vector3 localGravityR = new Vector3(20f, 0, 0);
-    private Vector3 localGravityUP = new Vector3(0, 20f, 0);
-    private Vector3 localGravityDOWN = new Vector3(0, -20f, 0);
-    private Vector3 localGravityZP = new Vector3(0, 0, 20f);
-    private Vector3 localGravityZM = new Vector3(0, 0, -20f);
-    public bool gravityL = false;
-    public bool gravityR = false;
-    public bool gravityUP = false;
-    public bool gravityZP = false;
-    public bool gravityZM = false;
+    public Vector3 gravityDirection { get; private set; }
+
+    public bool isFixCamera { get; private set; }
+    public bool noChangeGravityWall { get; private set; }
 
     void Start()
     {
-        Physics.gravity = localGravityDOWN;
+        gravityDirection = Vector3.down;
+        Physics.gravity = gravityDirection * gravityScale;
     }
 
     void Update()
     {
-    
+        CastRay(Vector3.up);
+        CastRay(Vector3.down);
+        CastRay(Vector3.left);
+        CastRay(Vector3.right);
+        CastRay(Vector3.forward);
+        CastRay(Vector3.back);
+
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -gravityDirection);
+
+        transform.rotation = targetRotation * transform.rotation;
+
+        if (gravityDirection != Vector3.zero)
+        {
+            Physics.gravity = gravityDirection.normalized * gravityScale;
+        }
+
+        lastDistance = float.MaxValue;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    float lastDistance = float.MaxValue;
+    void CastRay(Vector3 direction)
     {
-        
-        if (collision.gameObject.CompareTag("Floor"))
+        Ray ray = new Ray(transform.position, direction);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, rayLength))
         {
-            Physics.gravity = localGravityDOWN;
-            transform.rotation = Quaternion.AngleAxis(0, new Vector3(0, 0, 1));
-            gravityL = false;
-            gravityR = false;
-            gravityUP = false;
-            gravityZP = false;
-            gravityZM = false;
-        }
-         if (collision.gameObject.CompareTag("FloorL"))
-        {
-            Physics.gravity = localGravityL;
-           transform.rotation = Quaternion.AngleAxis(-90, new Vector3(0, 0, 1)) ;
-            gravityL = true;
-            gravityR = false;
-            gravityUP = false;
-            gravityZP = false;
-            gravityZM = false;
-        }
-         if (collision.gameObject.CompareTag("FloorR"))
-        {
-            Physics.gravity = localGravityR;
-            transform.rotation = Quaternion.AngleAxis(90, new Vector3(0, 0, 1));
-            gravityL = false;
-            gravityR = true;
-            gravityUP = false;
-            gravityZP = false;
-            gravityZM = false;
-        }
-         if (collision.gameObject.CompareTag("FloorUP"))
-        {
-            Physics.gravity = localGravityUP;
-            transform.rotation = Quaternion.AngleAxis(180, new Vector3(0, 0, 1));
-            gravityL = false;
-            gravityR = false;
-            gravityUP = true;
-            gravityZP = false;
-            gravityZM = false;
+            float distance = Vector3.Distance(hit.point, transform.position + _rigidbody.velocity);
+            if (distance < lastDistance)
+            {
+                if (hit.collider.gameObject.CompareTag("noChangeGravityWall")) return;
+                gravityDirection = direction;
+                lastDistance = distance;
+            }
         }
 
-         if (collision.gameObject.CompareTag("FloorZP"))
-        {
-            Physics.gravity = localGravityZP;
-            transform.rotation = Quaternion.AngleAxis(-90, new Vector3(1, 0, 0));
-            gravityL = false;
-            gravityR = false;
-            gravityUP = false;
-            gravityZP = true;
-            gravityZM = false;
-        }
-         if (collision.gameObject.CompareTag("FloorZM"))
-        {
-            Physics.gravity = localGravityZM;
-            transform.rotation = Quaternion.AngleAxis(90, new Vector3(1, 0, 0));
-            gravityL = false;
-            gravityR = false;
-            gravityUP = false;
-            gravityZP = false;
-            gravityZM = true;
-        }
+        // デバッグ用のRayをシーンビューに表示
+        Debug.DrawRay(transform.position, direction * rayLength, Color.red);
     }
 }

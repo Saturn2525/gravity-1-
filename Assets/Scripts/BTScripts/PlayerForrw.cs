@@ -18,7 +18,7 @@ public class PlayerForrw : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         _cameraOffset = transform.position - PlayerTransform.position;
     }
-     void Update()
+    void Update()
     {
         if (RotateAroundPlayer)
         {
@@ -29,37 +29,37 @@ public class PlayerForrw : MonoBehaviour
 
         Vector3 newPos = PlayerTransform.position + _cameraOffset;
 
-       transform.position = Vector3.Slerp(transform.position, newPos, SmoothFactor);
+        transform.position = Vector3.Slerp(transform.position, newPos, SmoothFactor);
         if (LookAtPlayer || RotateAroundPlayer)
             transform.LookAt(PlayerTransform);
     }
     // Update is called once per frame
-   private void LateUpdate()
+    private void LateUpdate()
     {
         GravityScript gravityScript;
         GameObject obj = GameObject.Find("Player"); //Playerっていうオブジェクトを探す
         gravityScript = obj.GetComponent<GravityScript>(); //付いているスクリプトを取得
 
-        if(gravityScript.gravityL)
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(90f, Vector3.forward) * transform.rotation, 1);
-        }
-        else if (gravityScript.gravityR)
-        {
+        // if(gravityScript.gravityL)
+        // {
+        //     transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(90f, Vector3.forward) * transform.rotation, 1);
+        // }
+        // else if (gravityScript.gravityR)
+        // {
 
-        }
-        else if (gravityScript.gravityZP)
-        {
+        // }
+        // else if (gravityScript.gravityZP)
+        // {
 
-        }
-        else if (gravityScript.gravityZM)
-        {
+        // }
+        // else if (gravityScript.gravityZM)
+        // {
 
-        }
-        else 
-        {
-        
-        }
+        // }
+        // else 
+        // {
+
+        // }
 
     }
 }

@@ -5,41 +5,47 @@ using UnityEngine;
 public class Rotatecamera : MonoBehaviour
 {
     // Start is called before the first frame update
+    private float XAngle = 0;
+    private float YAngle = 0;
+    [SerializeField] private float AngleSpeed;
+    [SerializeField] private float MaxAngle;
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        GravityScript gravityScript;
-        GameObject obj = GameObject.Find("Player"); //Playerっていうオブジェクトを探す
-        gravityScript = obj.GetComponent<GravityScript>(); //付いているスクリプトを取得
+        SetAngle();
 
-        if (gravityScript.gravityL)
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -Physics.gravity) * transform.rotation;
+        Quaternion additionalRotation = Quaternion.Euler(0, XAngle, 0);
+        Quaternion finalTargetRotation = targetRotation * additionalRotation;
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, finalTargetRotation, 5);
+        transform.Rotate(-Physics.gravity, XAngle * Time.deltaTime);
+    }
+
+    private void SetAngle()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(-90f, Vector3.forward), 5f);
+            XAngle = AngleSpeed;
         }
-        else if (gravityScript.gravityR)
+        if (Input.GetKeyUp(KeyCode.LeftArrow))
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(90f, Vector3.forward), 5f);
+            XAngle = 0;
         }
-        else if (gravityScript.gravityZP)
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(-90f, Vector3.right), 5f);
+            XAngle = -AngleSpeed;
         }
-        else if (gravityScript.gravityZM)
+        if (Input.GetKeyUp(KeyCode.RightArrow))
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(90f, Vector3.right), 5f);
-        }
-        else if (gravityScript.gravityUP)
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(180f, Vector3.forward), 5f);
-        }
-        else
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.AngleAxis(0, Vector3.forward), 5f);
+            XAngle = 0;
         }
     }
+
+    private Quaternion GetAngle => Quaternion.AngleAxis(YAngle, transform.right);
+
 }
